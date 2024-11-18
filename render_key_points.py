@@ -20,17 +20,17 @@ def mediapipe_detection(image, model):
     return image, results
 
 def draw_landmarks(image, results):
-    mp_drawing.draw_landmarks(image, results.face_landmarks, constants.mp_holistic.FACEMESH_TESSELATION) # Draw face connections
+    # mp_drawing.draw_landmarks(image, results.face_landmarks, constants.mp_holistic.FACEMESH_TESSELATION) # Draw face connections
     mp_drawing.draw_landmarks(image, results.pose_landmarks, constants.mp_holistic.POSE_CONNECTIONS) # Draw pose connections
     mp_drawing.draw_landmarks(image, results.left_hand_landmarks, constants.mp_holistic.HAND_CONNECTIONS) # Draw left hand connections
     mp_drawing.draw_landmarks(image, results.right_hand_landmarks, constants.mp_holistic.HAND_CONNECTIONS) # Draw right hand connections
 
 def draw_styled_landmarks(image, results):
     # Draw face connections
-    mp_drawing.draw_landmarks(image, results.face_landmarks, constants.mp_holistic.FACEMESH_TESSELATION, 
-    mp_drawing.DrawingSpec(color=(80,110,10), thickness=1, circle_radius=1),
-    mp_drawing.DrawingSpec(color=(80,256,121), thickness=1, circle_radius=1)
-    )
+    # mp_drawing.draw_landmarks(image, results.face_landmarks, constants.mp_holistic.FACEMESH_TESSELATION, 
+    # mp_drawing.DrawingSpec(color=(80,110,10), thickness=1, circle_radius=1),
+    # mp_drawing.DrawingSpec(color=(80,256,121), thickness=1, circle_radius=1)
+    # )
     # Draw pose connections
     mp_drawing.draw_landmarks(image, results.pose_landmarks, constants.mp_holistic.POSE_CONNECTIONS, 
     mp_drawing.DrawingSpec(color=(80,22,10), thickness=2, circle_radius=4),
@@ -60,7 +60,7 @@ def draw_styled_landmarks(image, results):
 def extract_key_points(results):
     pose = np.array([[res.x, res.y, res.z, res.visibility] for res in results.pose_landmarks.landmark]).flatten() if results.pose_landmarks else np.zeros(33*4)
 
-    face = np.array([[res.x, res.y, res.z] for res in results.face_landmarks.landmark]).flatten() if results.face_landmarks else np.zeros(468*3)
+    # face = np.array([[res.x, res.y, res.z] for res in results.face_landmarks.landmark]).flatten() if results.face_landmarks else np.zeros(468*3)
 
     lh = np.array([[res.x, res.y, res.z] for res in results.left_hand_landmarks.landmark]).flatten() if results.left_hand_landmarks else np.zeros(21*3)
     # We use 21 * 3 cause 21 is the total amount of data that we are going to receive
@@ -69,7 +69,8 @@ def extract_key_points(results):
 
     rh = np.array([[res.x, res.y, res.z] for res in results.right_hand_landmarks.landmark]).flatten() if results.right_hand_landmarks else np.zeros(21*3)
 
-    return np.concatenate([pose, face, lh, rh])
+    # return np.concatenate([pose, face, lh, rh])
+    return np.concatenate([pose, lh, rh])
 
 for action in constants.actions:
     if not os.path.exists(os.path.join(constants.DATA_PATH, action)):
@@ -113,7 +114,7 @@ with constants.mp_holistic.Holistic(min_detection_confidence=0.5, min_tracking_c
                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
                     # Show to screen
                     cv2.imshow('OpenCV Feed', image)
-                    cv2.waitKey(500)
+                    cv2.waitKey(1000)
                 else: 
                     cv2.putText(image, 'Collecting frames for {} Video Number {}'.format(action, sequence), (15,12), 
                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 1, cv2.LINE_AA)
