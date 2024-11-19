@@ -20,7 +20,7 @@ from sklearn.metrics import multilabel_confusion_matrix, accuracy_score
 DATA_PATH = os.path.join("MP_Data")
 
 # Actions that we try to detect
-actions = np.array(["hello", "thanks", "iloveyou"])
+actions = np.array(["yo", "querer", "aprobar"])
 # 30 videos of data
 no_sequences = 40
 # Videos are going to be 30 frames in length
@@ -146,7 +146,7 @@ model.compile(optimizer='Adam', loss='categorical_crossentropy', metrics=['categ
 
 model.fit(x_train, y_train, epochs=2000, validation_data = (x_test, y_test), callbacks = [cp_best_val_loss, cp_best_val_acc])
 
-model.save("action.h5")
+model.save("aprobar.h5")
 
 model.load_weights("SLD_val_loss.weights.h5")
 

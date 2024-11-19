@@ -12,7 +12,7 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 # Load and optimize model
 def load_optimized_model():
-    model = load_model("action.h5")
+    model = load_model("aprobar.h5")
     
     # Convert to TensorFlow Lite
     converter = tf.lite.TFLiteConverter.from_keras_model(model)
@@ -25,11 +25,11 @@ def load_optimized_model():
     tflite_model = converter.convert()
     
     # Save TFLite model
-    with open('action_optimized.tflite', 'wb') as f:
+    with open('aprobar_optimized.tflite', 'wb') as f:
         f.write(tflite_model)
     
     # Load TFLite model
-    interpreter = tf.lite.Interpreter(model_path="action_optimized.tflite")
+    interpreter = tf.lite.Interpreter(model_path="aprobar_optimized.tflite")
     interpreter.allocate_tensors()
     
     return interpreter
@@ -72,7 +72,7 @@ def make_prediction(sequence_data):
     return prediction
 
 if __name__ == "__main__":
-    socketio.run(app)
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
 
 @app.route("/")
 def hello_world():
@@ -82,7 +82,7 @@ model = load_optimized_model()
 input_details = model.get_input_details()
 output_details = model.get_output_details()
 
-actions = np.array(["hello", "thanks", "iloveyou"])
+actions = np.array(["yo", "querer", "aprobar"])
 sequence = []
 sentence = []
 predictions = []

@@ -1,4 +1,5 @@
 venv
-MP_Data
+MP_Data/*
 Logs
 __pycache__
+Backup/MP_Data/*
