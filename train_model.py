@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split # Allow us to partition our
 from keras.src.utils import to_categorical
 
 from keras.src.models import Sequential # Sequential neural network
-from keras.src.layers import LSTM, Dense, Dropout, BatchNormalization, LayerNormalization
+from keras.src.layers import LSTM, Dense, Dropout
 # LSTM layer for use a temporal component to work with neural network, and allow us to perform action detection
 from keras.src.callbacks import TensorBoard # Allow us to monitoring our neural network model
 from keras.src.callbacks import ModelCheckpoint
@@ -14,13 +14,11 @@ from keras.src.regularizers import L2
 
 import mediapipe as mp
 
-from sklearn.metrics import multilabel_confusion_matrix, accuracy_score
-
 # Path for exported data, numpy arrays
 DATA_PATH = os.path.join("MP_Data")
 
 # Actions that we try to detect
-actions = np.array(["yo", "querer", "aprobar"])
+actions = np.array(['hello', 'thank_you', 'see_you_later'])
 # 30 videos of data
 no_sequences = 40
 # Videos are going to be 30 frames in length
@@ -74,16 +72,9 @@ def draw_styled_landmarks(image, results):
 # Each of the 30 arrays represents the landmark values (1662 values)
 # from a single array.
 
-# pose = []
-# for res in results.pose_landmarks.landmark:
-#     test = np.array([res.x, res.y, res.z, res.visibility])
-#     pose.append(test)
-
 def extract_key_points(results):
     pose = np.array([[res.x, res.y, res.z, res.visibility] for res in results.pose_landmarks.landmark]).flatten() if results.pose_landmarks else np.zeros(33*4)
-
-    # face = np.array([[res.x, res.y, res.z] for res in results.face_landmarks.landmark]).flatten() if results.face_landmarks else np.zeros(468*3)
-
+    face = np.array([[res.x, res.y, res.z] for res in results.face_landmarks.landmark]).flatten() if results.face_landmarks else np.zeros(468*3)
     lh = np.array([[res.x, res.y, res.z] for res in results.left_hand_landmarks.landmark]).flatten() if results.left_hand_landmarks else np.zeros(21*3)
     # We use 21 * 3 cause 21 is the total amount of data that we are going to receive
     # from a hand, and multiply by 3 cause of x y and z
@@ -92,7 +83,7 @@ def extract_key_points(results):
     rh = np.array([[res.x, res.y, res.z] for res in results.right_hand_landmarks.landmark]).flatten() if results.right_hand_landmarks else np.zeros(21*3)
 
     # return np.concatenate([pose, face, lh, rh])
-    return np.concatenate([pose, lh, rh])
+    return np.concatenate([pose, face, lh, rh])
 
 #region PROCESS DATA AND CREATE LABELS AND FEATURES
 # Create a label dictionary for each one of our labels

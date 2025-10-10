@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask
 from flask_socketio import SocketIO, emit
 from keras.api.models import load_model
 import numpy as np
@@ -33,7 +33,6 @@ def load_optimized_model():
     interpreter.allocate_tensors()
     
     return interpreter
-
 
 def mediapipe_detection(image, model):
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB) # COLOR CONVERSION
@@ -70,9 +69,6 @@ def make_prediction(sequence_data):
     prediction = model.get_tensor(output_details[0]['index'])[0]
     
     return prediction
-
-if __name__ == "__main__":
-    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
 
 @app.route("/")
 def hello_world():
@@ -154,3 +150,6 @@ def handle_video_frame(frame_data):
             })
     except Exception as e:
         emit("error", {"message": str(e)})
+
+if __name__ == "__main__":
+    socketio.run(app, host='0.0.0.0', port=5000, debug=True)
