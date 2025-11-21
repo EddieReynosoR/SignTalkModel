@@ -15,21 +15,6 @@ Este proyecto implementa un sistema de reconocimiento de señas utilizando visi�
 
 ---
 
-## 📂 Estructura del proyecto
-│── app.py # Ejecución del modelo en tiempo real
-│── collect_key_points.py # Recolección de keypoints para el dataset
-│── execute_model.py # Inferencia y pruebas del modelo
-│── train_model.py # Entrenamiento del modelo LSTM
-│── sign_model.keras # Modelo entrenado
-│── SLD_val_acc.weights.h5 # Pesos (mejor accuracy)
-│── SLD_val_loss.weights.h5 # Pesos (mejor pérdida)
-│── quickstart.py # Demo rápida de uso
-│── index.html # Prueba visual en navegador
-│── requirements.txt # Dependencias
-│── .gitignore
-
----
-
 ## 🚀 Instalación
 
 ### 1. Clonar el repositorio
