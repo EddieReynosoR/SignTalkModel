@@ -93,20 +93,16 @@ actions = np.array(
         sorted([f for f in os.listdir(DATA_PATH) if (DATA_PATH / f).is_dir()]),
         dtype=str)
 
-# Load TF SavedModel exported via: model.export("sign_model")
 saved_model = tf.saved_model.load(str(base_dir / "sign_model"))
 
-# Pick the serving function (endpoint)
 signature_name = "serving_default" if "serving_default" in saved_model.signatures else next(iter(saved_model.signatures))
 infer = saved_model.signatures[signature_name]
 
-# Resolve input/output keys robustly
 input_key = next(iter(infer.structured_input_signature[1].keys()))
 output_key = next(iter(infer.structured_outputs.keys()))
 
 logger.info("SavedModel signature=%s, input_key=%s, output_key=%s", signature_name, input_key, output_key)
 
-# Determine feature size from keypoint extractor: pose(33*4)+lh(21*3)+rh(21*3)=258
 FEATURES = 33 * 4 + 21 * 3 + 21 * 3
 SEQ_LEN = 30
 
@@ -121,8 +117,6 @@ def make_prediction(sequence_data: deque):
     prediction = outputs[output_key].numpy()[0]  # (num_classes,)
     return prediction
 
-
-# Warmup to avoid first-request latency
 try:
     dummy = np.zeros((1, SEQ_LEN, FEATURES), dtype=np.float32)
     _ = infer(**{input_key: tf.constant(dummy)})[output_key].numpy()
@@ -145,12 +139,10 @@ holistic_lock = threading.Lock()
 # -------------------------
 # Per-client state
 # -------------------------
-# You can tune these:
 THRESHOLD = float(os.getenv("SIGN_THRESHOLD", "0.8"))
 MAX_SENTENCE = int(os.getenv("MAX_SENTENCE", "5"))
 PRED_SMOOTH_WINDOW = int(os.getenv("PRED_SMOOTH_WINDOW", "10"))
 
-# Throttle processing (server-side). Example: 15 FPS max.
 MAX_FPS = float(os.getenv("MAX_FPS", "15"))
 MIN_FRAME_INTERVAL = 1.0 / MAX_FPS if MAX_FPS > 0 else 0.0
 
@@ -208,14 +200,12 @@ def handle_disconnect():
 def handle_video_frame(frame_data):
     sid = request.sid
 
-    # Get client state (or init if missing)
     with state_lock:
         st = client_state.get(sid)
         if st is None:
             st = init_state()
             client_state[sid] = st
 
-    # Throttle server-side processing
     now = time.time()
     if MIN_FRAME_INTERVAL > 0 and (now - st["last_ts"]) < MIN_FRAME_INTERVAL:
         return
@@ -226,9 +216,7 @@ def handle_video_frame(frame_data):
         if err:
             emit("error", {"message": err})
             return
-
-        # Optional: downscale for speed
-        # Keep aspect ratio; reduce max width to 640
+        
         h, w = frame.shape[:2]
         if w > 640:
             scale = 640.0 / float(w)
@@ -236,7 +224,6 @@ def handle_video_frame(frame_data):
 
         frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-        # Mediapipe process (guard with lock to avoid thread-safety issues)
         with holistic_lock:
             results = holistic.process(frame_rgb)
 
@@ -256,7 +243,6 @@ def handle_video_frame(frame_data):
         if res is None:
             return
 
-        # Validate mapping length (avoid wrong labels)
         if len(res) != len(actions):
             msg = f"Model output classes ({len(res)}) != actions labels ({len(actions)}). Check labels.json/order."
             logger.error(msg)
@@ -296,7 +282,4 @@ def handle_video_frame(frame_data):
 
 
 if __name__ == "__main__":
-    # Production tips:
-    # - For real deployment, prefer gunicorn + appropriate worker model
-    # - debug=False in production
     socketio.run(app, host="0.0.0.0", port=5000, debug=True)
