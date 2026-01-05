@@ -106,3 +106,4 @@ history = model.fit(
 )
 
 model.save("sign_model.keras")
+model.export("sign_model")
